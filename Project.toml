@@ -6,7 +6,6 @@ version = "0.1.0"
 [deps]
 AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
 DynamicPolynomials = "7c1d4256-1411-5781-91ec-d7bc3513ac07"
-FGenerators = "4fd0377b-cfdc-4941-97f4-8d7ddbb8981e"
 MutableArithmetics = "d8a4904e-b15c-11e9-3269-09a3773c0cb0"
 Transducers = "28d57a85-8fef-5791-bfe6-a80928e7c999"
 

@@ -3,6 +3,13 @@ uuid = "46c4bbdb-a633-4c08-a47d-0d4c54c9a6b2"
 authors = ["Simeon David Schaub <schaub@mit.edu> and contributors"]
 version = "0.1.0"
 
+[deps]
+AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
+DynamicPolynomials = "7c1d4256-1411-5781-91ec-d7bc3513ac07"
+FGenerators = "4fd0377b-cfdc-4941-97f4-8d7ddbb8981e"
+MutableArithmetics = "d8a4904e-b15c-11e9-3269-09a3773c0cb0"
+Transducers = "28d57a85-8fef-5791-bfe6-a80928e7c999"
+
 [compat]
 julia = "1.7"
 

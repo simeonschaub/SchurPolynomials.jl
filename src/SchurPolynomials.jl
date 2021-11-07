@@ -32,15 +32,14 @@ struct RowConfigs <: Foldable
     i::Int
     n::Int
 end
-function Transducers.__foldl__(rf, acc, (; rows, i, n)::RowConfigs)
+Base.eltype(::RowConfigs) = Nothing
+function Transducers.__foldl__(rf::RF, acc, (; rows, i, n)::RowConfigs) where {RF}
     row = @inbounds rows[i]
     acc = _row!(i, 1, row, rows, n, rf, acc)
     return complete(rf, acc)
 end
-Base.eltype(::RowConfigs) = Nothing
-
 # row i, column j
-function _row!(i, j, row, rows, n, rf, acc)
+function _row!(i, j, row, rows, n, rf::RF, acc) where {RF}
     j > length(row) && return next(rf, acc, nothing)
     above = i == 1 ? 0 : rows[i-1][j]
     left = get(row, j-1, 1)
@@ -51,7 +50,7 @@ function _row!(i, j, row, rows, n, rf, acc)
     acc
 end
 
-function _worker!(i, rf, acc, ssyt)
+function _worker!(i, rf::RF, acc, ssyt) where {RF}
     (; T, rows, n) = ssyt
     i > length(rows) && return next(rf, acc, T)
     foldl(RowConfigs(rows, i, n); init=acc) do acc, _
@@ -59,7 +58,7 @@ function _worker!(i, rf, acc, ssyt)
     end
 end
 
-function Transducers.__foldl__(rf, acc, ssyt::SemiStandardYoungTableaux)
+function Transducers.__foldl__(rf::RF, acc, ssyt::SemiStandardYoungTableaux) where {RF}
     acc = _worker!(1, rf, acc, ssyt)
     return complete(rf, acc)
 end

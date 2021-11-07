@@ -2,15 +2,20 @@ module SchurPolynomials
 
 using AbstractAlgebra, Transducers, DynamicPolynomials
 using AbstractAlgebra: Partition
-using Transducers: next, @next, complete
+using Transducers: next, complete, Foldable
 import MutableArithmetics as MA
 
+const RowsType = Vector{SubArray{Int, 1, Vector{Int}, Tuple{UnitRange{Int}}, true}}
+
+"""
+Iterates over all semi-standard Young tableaux of shape `λ`.
+"""
 struct SemiStandardYoungTableaux <: Foldable
     T::Generic.YoungTableau{Int}
-    rows::Vector{SubArray{Int64, 1, Vector{Int}, Tuple{UnitRange{Int}}, true}}
+    rows::RowsType
     n::Int
     function SemiStandardYoungTableaux(λ, n)
-        fill = Vector{Int}(undef, sum(λ)) #[i for (i, j) in enumerate(λ) for _ in 1:j]
+        fill = Vector{Int}(undef, sum(λ))
         rows = map(λ, Iterators.accumulate(+, λ)) do len, stop
             view(fill, stop-len+1:stop)
         end
@@ -18,33 +23,44 @@ struct SemiStandardYoungTableaux <: Foldable
     end
 end
 
-function row_configs!(rows, i, n)
-    Transducers.AdHocFoldable((; rows, i, n)) do rf, acc, (; rows, i, n)
-        row = @inbounds rows[i]
-        # row i, column j
-        function _row!(j, acc)
-            j > length(row) && return next(rf, acc, row)
-            above = i == 1 ? 0 : rows[i-1][j]
-            left = get(row, j-1, 1)
-            @inbounds for row[j] in max(above + 1, left):n
-                acc = _row!(j + 1, acc)
-                acc isa Reduced && return acc
-            end
-            acc
-        end
-        acc = _row!(1, acc)
-        return complete(rf, acc)
+"""
+Iterates over all configurations of row `i` that are allowed by the previous row.
+Iterator returns `nothing` but mutates `row`.
+"""
+struct RowConfigs <: Foldable
+    rows::RowsType
+    i::Int
+    n::Int
+end
+function Transducers.__foldl__(rf, acc, (; rows, i, n)::RowConfigs)
+    row = @inbounds rows[i]
+    acc = _row!(i, 1, row, rows, n, rf, acc)
+    return complete(rf, acc)
+end
+Base.eltype(::RowConfigs) = Nothing
+
+# row i, column j
+function _row!(i, j, row, rows, n, rf, acc)
+    j > length(row) && return next(rf, acc, nothing)
+    above = i == 1 ? 0 : rows[i-1][j]
+    left = get(row, j-1, 1)
+    @inbounds for row[j] in max(above + 1, left):n
+        acc = _row!(i, j + 1, row, rows, n, rf, acc)
+        acc isa Reduced && return acc
+    end
+    acc
+end
+
+function _worker!(i, rf, acc, ssyt)
+    (; T, rows, n) = ssyt
+    i > length(rows) && return next(rf, acc, T)
+    foldl(RowConfigs(rows, i, n); init=acc) do acc, _
+        _worker!(i + 1, rf, acc, ssyt)
     end
 end
 
-function Transducers.__foldl__(rf, acc, (; T, rows, n)::SemiStandardYoungTableaux)
-    function worker!(i, acc)
-        i > length(rows) && return next(rf, acc, T)
-        foldl(row_configs!(rows, i, n); init=acc) do acc, _
-            worker!(i + 1, acc)
-        end
-    end
-    acc = worker!(1, acc)
+function Transducers.__foldl__(rf, acc, ssyt::SemiStandardYoungTableaux)
+    acc = _worker!(1, rf, acc, ssyt)
     return complete(rf, acc)
 end
 
@@ -66,6 +82,7 @@ function schur(n, λ)
         map!(monomials[j], 1:n) do i
             count(==(i), T.fill)
         end
+        nothing
     end
     return DynamicPolynomials.polynomialclean(x, fill(1, k), monomials)
 end

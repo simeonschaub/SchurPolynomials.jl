@@ -1,8 +1,10 @@
 module SchurPolynomials
 
+export schur, semi_standard_young_tableaux
+
 using AbstractAlgebra, Transducers, DynamicPolynomials
 using AbstractAlgebra: Partition
-using Transducers: next, complete, Foldable
+using Transducers: next, complete, Foldable, Map
 import MutableArithmetics as MA
 
 const RowsType = Vector{SubArray{Int, 1, Vector{Int}, Tuple{UnitRange{Int}}, true}}
@@ -11,15 +13,15 @@ const RowsType = Vector{SubArray{Int, 1, Vector{Int}, Tuple{UnitRange{Int}}, tru
 Iterates over all semi-standard Young tableaux of shape `λ`.
 """
 struct SemiStandardYoungTableaux <: Foldable
+    n::Int
     T::Generic.YoungTableau{Int}
     rows::RowsType
-    n::Int
-    function SemiStandardYoungTableaux(λ, n)
+    function SemiStandardYoungTableaux(n, λ)
         fill = Vector{Int}(undef, sum(λ))
         rows = map(λ, Iterators.accumulate(+, λ)) do len, stop
             view(fill, stop-len+1:stop)
         end
-        return new(YoungTableau(λ, fill), rows, n)
+        return new(n, YoungTableau(λ, fill), rows)
     end
 end
 
@@ -51,7 +53,7 @@ function _row!(i, j, row, rows, n, rf::RF, acc) where {RF}
 end
 
 function _worker!(i, rf::RF, acc, ssyt) where {RF}
-    (; T, rows, n) = ssyt
+    (; n, T, rows) = ssyt
     i > length(rows) && return next(rf, acc, T)
     foldl(RowConfigs(rows, i, n); init=acc) do acc, _
         _worker!(i + 1, rf, acc, ssyt)
@@ -63,7 +65,7 @@ function Transducers.__foldl__(rf::RF, acc, ssyt::SemiStandardYoungTableaux) whe
     return complete(rf, acc)
 end
 
-function Base.length((; T, n)::SemiStandardYoungTableaux)
+function Base.length((; n, T)::SemiStandardYoungTableaux)
     return Int(prod(
         (n-i+j) // hooklength(T, i, j)
         for (i, j_max) in enumerate(T.part)
@@ -72,8 +74,12 @@ function Base.length((; T, n)::SemiStandardYoungTableaux)
 end
 Base.eltype(::SemiStandardYoungTableaux) = Generic.YoungTableau
 
+semi_standard_young_tableaux(n, λ) = SemiStandardYoungTableaux(n, λ) |> Map() do T
+    YoungTableau(T.part, copy(T.fill))
+end
+
 function schur(n, λ)
-    SSYT = SemiStandardYoungTableaux(λ, n)
+    SSYT = SemiStandardYoungTableaux(n, λ)
     k = length(SSYT)
     @polyvar x[1:n]
     monomials = [Vector{Int}(undef, n) for _ in 1:k]

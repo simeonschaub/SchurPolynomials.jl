@@ -1,0 +1,6 @@
+[deps]
+AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
+Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
+DynamicPolynomials = "7c1d4256-1411-5781-91ec-d7bc3513ac07"
+SchurPolynomials = "46c4bbdb-a633-4c08-a47d-0d4c54c9a6b2"
+Transducers = "28d57a85-8fef-5791-bfe6-a80928e7c999"

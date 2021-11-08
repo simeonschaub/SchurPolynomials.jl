@@ -34,23 +34,26 @@ n = 5
 S = Dict(λ.part => schur(n, λ) for λ in Generic.partitions(n))
 
 # ╔═╡ 5ce04038-e4a1-4ab2-bb67-b2e379747e56
-P(k::Int, x) = sum(i -> x[i]^k, 1:length(x))
+powerfun(k::Int, x) = sum(xᵢ -> xᵢ^k, x)
 
-# ╔═╡ a7542146-8fb4-470e-a63d-9e39b9286d5d
-function P(ρ::Generic.Partition, x)
-	row_counts = foldl(right, GroupBy(identity, (x, _) -> x + 1, 0), ρ)
+# ╔═╡ b626a35f-6732-41db-a3d9-c53a906bc95a
+powerfun(ν::Generic.Partition, x) = prod(k -> powerfun(k, x), ν)
+
+# ╔═╡ c6903995-493e-40d6-bf40-4b1aef56f224
+function z(ν::Generic.Partition)
+	row_counts = foldl(right, GroupBy(identity, (x, _) -> x + 1, 0), ν)
 	prod(pairs(row_counts)) do (k, rₖ)
-		1//(factorial(rₖ) * k^rₖ) * P(k, x)^rₖ
+		factorial(rₖ) * k^rₖ
 	end
 end
 
 # ╔═╡ d407ded7-6613-4068-b55c-c1869e9178fe
 @polyvar x[1:n]
 
-# ╔═╡ fa0daebb-15c6-4b37-ab75-bf16be9bb6b0
+# ╔═╡ d4b75503-c43a-4c58-880b-628f5e9e0972
 S′ = Dict(
-	λ.part => convert(Polynomial{true, Int}, sum(Generic.partitions(n)) do ρ
-		character(λ, ρ) * P(ρ, x)
+	λ.part => convert(Polynomial{true, Int}, sum(Generic.partitions(n)) do ν
+		character(λ, ν) // z(ν) * powerfun(ν, x)
 	end)
 	for λ in Generic.partitions(n)
 )
@@ -73,8 +76,9 @@ end
 # ╠═53eee919-2c7b-4c0f-bd86-9e715d2b0129
 # ╠═97356e16-b186-4d7a-8dc4-0f062dc0c91f
 # ╠═5ce04038-e4a1-4ab2-bb67-b2e379747e56
-# ╠═a7542146-8fb4-470e-a63d-9e39b9286d5d
+# ╠═b626a35f-6732-41db-a3d9-c53a906bc95a
+# ╠═c6903995-493e-40d6-bf40-4b1aef56f224
 # ╠═d407ded7-6613-4068-b55c-c1869e9178fe
-# ╠═fa0daebb-15c6-4b37-ab75-bf16be9bb6b0
+# ╠═d4b75503-c43a-4c58-880b-628f5e9e0972
 # ╠═ceebd22f-447c-4310-8a52-b22ec98ce876
 # ╠═8a08ba51-f000-4771-854a-301133c7c405

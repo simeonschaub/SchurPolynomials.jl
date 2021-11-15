@@ -2,10 +2,11 @@ module SchurPolynomials
 
 export schur, semi_standard_young_tableaux
 
-using AbstractAlgebra, Transducers, DynamicPolynomials, Dictionaries
+using AbstractAlgebra, Transducers, Dictionaries
+using YAPP: Monomial, Polynomial
+using BangBang
 using AbstractAlgebra: Partition
 using Transducers: next, complete, Foldable, Map
-import MutableArithmetics as MA
 
 const RowsType = Vector{SubArray{Int, 1, Vector{Int}, Tuple{UnitRange{Int}}, true}}
 
@@ -80,18 +81,12 @@ end
 
 function schur(n, λ)
     SSYT = SemiStandardYoungTableaux(n, λ)
-    @polyvar x[1:n]
-    terms = Dictionary{Vector{Int}, Int}()
-    foreach(SSYT) do T
-        monomial = map(1:n) do i
+    foldl(SSYT; init=Polynomial{Int}()) do p, T
+        exponents = map(1:n) do i
             count(==(i), T.fill)
         end
-        haskey, token = gettoken!(terms, monomial)
-        settokenvalue!(terms, token, haskey ? gettokenvalue(terms, token) + 1 : 1)
-        nothing
+        add!!(p, Monomial(exponents))
     end
-    terms = sortkeys(terms; rev=true, lt=DynamicPolynomials.grlex)
-    return Polynomial{true, Int}(terms.values, MonomialVector(x, terms.indices.values))
 end
 
 end

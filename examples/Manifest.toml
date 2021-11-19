@@ -116,12 +116,6 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 deps = ["ArgTools", "LibCURL", "NetworkOptions"]
 uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 
-[[deps.DynamicPolynomials]]
-deps = ["DataStructures", "Future", "LinearAlgebra", "MultivariatePolynomials", "MutableArithmetics", "Pkg", "Reexport", "Test"]
-git-tree-sha1 = "fa59a2ab7fd7dd224079a0584488770b591b2d52"
-uuid = "7c1d4256-1411-5781-91ec-d7bc3513ac07"
-version = "0.4.0"
-
 [[deps.Future]]
 deps = ["Random"]
 uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
@@ -228,9 +222,9 @@ uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
 
 [[deps.MultivariatePolynomials]]
 deps = ["DataStructures", "LinearAlgebra", "MutableArithmetics"]
-git-tree-sha1 = "1a09fe5b59d471496b0916439086cf8fae361ab3"
+git-tree-sha1 = "fa6ce8c91445e7cd54de662064090b14b1089a6d"
 uuid = "102ac46a-7ee4-5c85-9060-abc95bfdeaa3"
-version = "0.4.0"
+version = "0.4.2"
 
 [[deps.MutableArithmetics]]
 deps = ["LinearAlgebra", "SparseArrays", "Test"]
@@ -377,9 +371,7 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
 [[deps.YAPP]]
 deps = ["BangBang", "Dictionaries", "LinearAlgebra", "MultivariatePolynomials"]
-git-tree-sha1 = "a8d71d5de9858a5eee5ede20ebdeed5d5e568a1c"
-repo-rev = "main"
-repo-url = "git@github.com:simeonschaub/YAPP.jl"
+path = "/home/simeon/.julia/dev/YAPP"
 uuid = "91939361-fd04-4647-8d0b-76fc4d3c6868"
 version = "0.1.0"
 

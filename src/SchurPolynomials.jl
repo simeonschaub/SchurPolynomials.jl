@@ -41,15 +41,16 @@ function Transducers.__foldl__(rf::RF, acc, (; rows, i, n)::RowConfigs) where {R
     return complete(rf, acc)
 end
 # row i, column j
-function _row!(i, j, row, rows, n, rf::RF, acc) where {RF}
-    j > length(row) && return next(rf, acc, nothing)
+function _row!(i, j, row, rows, n, rf::RF, acc::A) where {RF, A}
+    T = Core.Compiler.return_type(next, Tuple{RF, A, Nothing})
+    j > length(row) && return next(rf, acc, nothing)::T
     above = i == 1 ? 0 : rows[i-1][j]
     left = get(row, j-1, 1)
     @inbounds for row[j] in max(above + 1, left):n
-        acc = _row!(i, j + 1, row, rows, n, rf, acc)
+        acc = _row!(i, j + 1, row, rows, n, rf, acc)::T
         acc isa Reduced && return acc
     end
-    acc
+    acc::T
 end
 
 function _worker!(i, rf::RF, acc, ssyt) where {RF}

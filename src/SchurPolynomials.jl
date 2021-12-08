@@ -42,20 +42,19 @@ function Transducers.__foldl__(rf::RF, acc, (; rows, i, n)::RowConfigs) where {R
 end
 # row i, column j
 function _row!(i, j, row, rows, n, rf::RF, acc::A) where {RF, A}
-    T = Core.Compiler.return_type(next, Tuple{RF, A, Nothing})
-    j > length(row) && return next(rf, acc, nothing)::T
+    j > length(row) && return next(rf, acc, nothing)
     above = i == 1 ? 0 : rows[i-1][j]
     left = get(row, j-1, 1)
     @inbounds for row[j] in max(above + 1, left):n
-        acc = _row!(i, j + 1, row, rows, n, rf, acc)::T
+        acc = _row!(i, j + 1, row, rows, n, rf, acc)
         acc isa Reduced && return acc
     end
-    acc::T
+    acc
 end
 
 function _worker!(i, rf::RF, acc, ssyt) where {RF}
     (; n, T, rows) = ssyt
-    i > length(rows) && return next(rf, acc, T)
+    i > length(rows) && return next(rf, acc, nothing)
     foldl(RowConfigs(rows, i, n); init=acc) do acc, _
         _worker!(i + 1, rf, acc, ssyt)
     end
@@ -83,7 +82,8 @@ function schur(n, λ)
     SSYT = SemiStandardYoungTableaux(n, λ)
     @polyvar x[1:n]
     terms = Dictionary{Vector{Int}, Int}()
-    foreach(SSYT) do T
+    (; T) = SSYT
+    foreach(SSYT) do _
         monomial = map(1:n) do i
             count(==(i), T.fill)
         end

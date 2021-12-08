@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.0
+# v0.17.1
 
 using Markdown
 using InteractiveUtils
@@ -9,7 +9,7 @@ begin
 	import Pkg
 	Pkg.activate(".")
 	Pkg.develop(; path="..")
-	Pkg.add(["AbstractAlgebra", "DynamicPolynomials", "Transducers", "Dictionaries"])
+	Pkg.add(["AbstractAlgebra", "DynamicPolynomials", "Transducers", "Dictionaries", "BenchmarkTools"])
 end
 
 # ╔═╡ ee3c9bca-3fa0-11ec-3fc4-55bf8b43afb4
@@ -21,11 +21,14 @@ using Transducers: Map
 # ╔═╡ 4a3fb69b-13c7-4fdf-b12f-3bd1e2abdaba
 using AbstractAlgebra: Partition
 
+# ╔═╡ f722c81b-b079-4946-b9eb-f7434d30c749
+using BenchmarkTools
+
 # ╔═╡ 480c3e86-ef27-437d-872d-612792f259f9
 λ = Partition([2, 1, 1])
 
 # ╔═╡ fd2f0cdb-0674-4546-bae8-15dcacc5a18c
-collect(semi_standard_young_tableaux(4, λ))
+#collect(semi_standard_young_tableaux(4, λ))
 
 # ╔═╡ 53eee919-2c7b-4c0f-bd86-9e715d2b0129
 n = 5
@@ -66,6 +69,17 @@ let x = rand(n)
 	(Ref(x) .|> Dictionary(S)) .- (Ref(x) .|> Dictionary(S′))
 end
 
+# ╔═╡ 6927fb6e-1cdc-4ccf-856d-a5e60f801886
+let
+	unleash_recur = (args...) -> true
+    for m in ()#methods(SchurPolynomials._row!)
+        m.recursion_relation = unleash_recur
+    end
+end
+
+# ╔═╡ 4e429bb1-911a-4666-95a2-f6aa2c1e229f
+@benchmark schur(10, Partition([4:-1:1;]))
+
 # ╔═╡ Cell order:
 # ╠═76f9e6bd-6c96-4441-8f80-dec874ea5a11
 # ╠═ee3c9bca-3fa0-11ec-3fc4-55bf8b43afb4
@@ -82,3 +96,6 @@ end
 # ╠═d4b75503-c43a-4c58-880b-628f5e9e0972
 # ╠═ceebd22f-447c-4310-8a52-b22ec98ce876
 # ╠═8a08ba51-f000-4771-854a-301133c7c405
+# ╠═f722c81b-b079-4946-b9eb-f7434d30c749
+# ╠═6927fb6e-1cdc-4ccf-856d-a5e60f801886
+# ╠═4e429bb1-911a-4666-95a2-f6aa2c1e229f

@@ -2,6 +2,7 @@
 AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 Dictionaries = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
-DynamicPolynomials = "7c1d4256-1411-5781-91ec-d7bc3513ac07"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 SchurPolynomials = "46c4bbdb-a633-4c08-a47d-0d4c54c9a6b2"
 Transducers = "28d57a85-8fef-5791-bfe6-a80928e7c999"
+YAPP = "91939361-fd04-4647-8d0b-76fc4d3c6868"

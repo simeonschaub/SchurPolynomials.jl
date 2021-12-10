@@ -23,6 +23,9 @@ begin
 	using AbstractAlgebra: Partition
 end
 
+# ╔═╡ 2bf97bef-38c3-4140-b44d-b8bb9745673f
+using Printf
+
 # ╔═╡ 9e830e0c-2cab-4247-8487-ece4b6f82854
 using BenchmarkTools
 
@@ -90,14 +93,16 @@ let x = rand(n)
 end
 
 # ╔═╡ 9ee2519b-786a-428e-a517-7e599c11f3e4
-let m=100, n=5
+let m=11, n=6
+	x = Monomial{Vector{Int}}.(eachcol(I(n)))
 	x_ = randn(n, m)
 	p, s = (Matrix{Float64}(undef, length(Generic.partitions(n)), m) for _ in 1:2)
 	for (i, λ) in enumerate(Generic.partitions(n))
 		p[i, :] .= (eachcol(x_) .|> powerfun(λ, x[1:n])) ./ z(λ)
 		s[i, :] .= (eachcol(x_) .|> schur(n, λ))
 	end
-	round.(Int, s / p)
+	s / p .|> x -> round(Int, x)
+	Text.(Printf.format.([Printf.format"%.2f"], s / p))
 end
 
 # ╔═╡ b3f710d2-5216-47a8-8427-3b0a5d0f2dd7
@@ -125,11 +130,12 @@ end
 times = [@belapsed(schur($n, $(Partition(p)))) for (n, p) in enumerate(p)]
 
 # ╔═╡ 5cbe2be9-1308-4bb0-8955-8666ad489110
-scatter(times; xscale=:log10, yscale=:log10)
+scatter(times; xscale=:log10, yscale=:log10, legend=:none)
 
 # ╔═╡ Cell order:
 # ╠═76f9e6bd-6c96-4441-8f80-dec874ea5a11
 # ╠═ee3c9bca-3fa0-11ec-3fc4-55bf8b43afb4
+# ╠═2bf97bef-38c3-4140-b44d-b8bb9745673f
 # ╠═480c3e86-ef27-437d-872d-612792f259f9
 # ╟─5987e81e-b1d7-49cf-8bf1-83a43eece501
 # ╠═53eee919-2c7b-4c0f-bd86-9e715d2b0129

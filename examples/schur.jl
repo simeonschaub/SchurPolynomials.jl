@@ -130,7 +130,39 @@ end
 times = [@belapsed(schur($n, $(Partition(p)))) for (n, p) in enumerate(p)]
 
 # ╔═╡ 5cbe2be9-1308-4bb0-8955-8666ad489110
-scatter(times; xscale=:log10, yscale=:log10, legend=:none)
+plt1 = scatter(times; xscale=:log10, yscale=:log10, legend=:none,
+	xlabel=raw"$n$", ylabel=raw"Runtime $t$ in s",
+	title="Performance Scaling of Schur Polynomial Calculation")
+
+# ╔═╡ 554ea451-6716-4824-adb3-0b95cd10036d
+function _schur(n, λ)
+	copy(sum(Generic.partitions(n)) do ν
+		character(λ, ν) // z(ν) * powerfun(ν, x)
+	end, Int)
+end
+
+# ╔═╡ c67d3c77-ba3e-4f1d-9410-9aa8e6675490
+times2 = [@belapsed(_schur($n, $(Partition(p)))) for (n, p) in enumerate(p)]
+
+# ╔═╡ bd628110-b25d-433d-938d-f993c5ea3d3f
+plt2 = scatter([times times2]; xscale=:log10, yscale=:log10,# legend=:none,
+	xlabel=raw"$n$", ylabel=raw"Runtime $t$ in s",
+	title="Performance Scaling of Schur Polynomial Calculation",
+	label=["sum over SSYT" "\$\\chi\$ times power polynomials"])
+
+# ╔═╡ 9f2a664e-39e6-44de-be6d-b581ce5a8787
+savefig(plt2, "performance.pdf")
+
+# ╔═╡ 296f1da5-dae2-4e7a-ba19-bc5a683ee7ee
+sprint() do io
+	for (λ, s_λ) in (λ => schur(4, λ) for λ in Generic.partitions(4))
+		print(io, "\\yng(")
+		join(io, λ, ",")
+		print(io, ") & \$ \\begin{autobreak}")
+		print(io, replace(repr(MIME("text/latex"), s_λ), "\$\$" => ""))
+		println(io, "\\end{autobreak} \$ \\\\")
+	end
+end |> Text
 
 # ╔═╡ Cell order:
 # ╠═76f9e6bd-6c96-4441-8f80-dec874ea5a11
@@ -140,7 +172,7 @@ scatter(times; xscale=:log10, yscale=:log10, legend=:none)
 # ╟─5987e81e-b1d7-49cf-8bf1-83a43eece501
 # ╠═53eee919-2c7b-4c0f-bd86-9e715d2b0129
 # ╠═97356e16-b186-4d7a-8dc4-0f062dc0c91f
-# ╟─d65b2b91-95cd-4bc5-a50c-60dfb994647a
+# ╠═d65b2b91-95cd-4bc5-a50c-60dfb994647a
 # ╠═5ce04038-e4a1-4ab2-bb67-b2e379747e56
 # ╠═b626a35f-6732-41db-a3d9-c53a906bc95a
 # ╠═c6903995-493e-40d6-bf40-4b1aef56f224
@@ -157,3 +189,8 @@ scatter(times; xscale=:log10, yscale=:log10, legend=:none)
 # ╠═766ca80a-5918-4d1b-bd6c-d0dba151208c
 # ╠═555e1339-0d12-402b-957c-f0d8d70cbc42
 # ╠═5cbe2be9-1308-4bb0-8955-8666ad489110
+# ╠═9f2a664e-39e6-44de-be6d-b581ce5a8787
+# ╠═554ea451-6716-4824-adb3-0b95cd10036d
+# ╠═c67d3c77-ba3e-4f1d-9410-9aa8e6675490
+# ╠═bd628110-b25d-433d-938d-f993c5ea3d3f
+# ╠═296f1da5-dae2-4e7a-ba19-bc5a683ee7ee

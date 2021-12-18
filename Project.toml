@@ -12,6 +12,7 @@ YAPP = "91939361-fd04-4647-8d0b-76fc4d3c6868"
 
 [compat]
 AbstractAlgebra = "0.22"
+BangBang = "0.3"
 Transducers = "0.4"
 julia = "1.7"
 
